@@ -9,21 +9,23 @@ export class WorkoutsService {
     constructor(private prisma: PrismaService) { }
 
     /// 운동 기록 생성
-    async create(createWorkoutDto: CreateWorkoutDto) {
+    async create(userId: number, createWorkoutDto: CreateWorkoutDto) {
         return this.prisma.workout.create({
             data: {
                 ...createWorkoutDto,
+                userId,
                 date: createWorkoutDto.date ? new Date(createWorkoutDto.date) : new Date(),
             },
         });
     }
 
     /// 운동 기록 조회 (전체/검색/필터/최근 기록 통합)
-    async findAll(dto: FindWorkoutsDto = {}) {
+    async findAll(userId: number, dto: FindWorkoutsDto = {}) {
         const { exerciseName, startDate, endDate, limit } = dto;
 
         return this.prisma.workout.findMany({
             where: {
+                userId,
                 ...(exerciseName && {
                     exerciseName: {
                         contains: exerciseName,
@@ -45,18 +47,24 @@ export class WorkoutsService {
     }
 
     /// 특정 운동 기록 조회
-    async findOne(id: number) {
-        return this.prisma.workout.findUnique({
-            where: { id },
+    async findOne(userId: number, id: number) {
+        return this.prisma.workout.findFirst({
+            where: {
+                id,
+                userId,
+            },
         });
     }
 
     /// 운동 통계 조회
-    async getStatistics() {
-        const totalWorkouts = await this.prisma.workout.count();
+    async getStatistics(userId: number) {
+        const totalWorkouts = await this.prisma.workout.count({
+            where: { userId },
+        });
 
         const exerciseGroups = await this.prisma.workout.groupBy({
             by: ['exerciseName'],
+            where: { userId },
             _count: {
                 id: true,
             },
@@ -84,9 +92,10 @@ export class WorkoutsService {
     }
 
     /// 특정 운동의 역대 최고 기록 조회
-    async getPersonalRecord(exerciseName: string) {
+    async getPersonalRecord(userId: number, exerciseName: string) {
         return this.prisma.workout.findFirst({
             where: {
+                userId,
                 exerciseName: {
                     equals: exerciseName,
                     mode: 'insensitive',
@@ -99,9 +108,12 @@ export class WorkoutsService {
     }
 
     /// 운동 기록 수정
-    async update(id: number, updateWorkoutDto: UpdateWorkoutDto) {
+    async update(userId: number, id: number, updateWorkoutDto: UpdateWorkoutDto) {
         return this.prisma.workout.update({
-            where: { id },
+            where: {
+                id,
+                userId,
+            },
             data: {
                 ...updateWorkoutDto,
                 ...(updateWorkoutDto.date && { date: new Date(updateWorkoutDto.date) }),
@@ -110,9 +122,12 @@ export class WorkoutsService {
     }
 
     /// 운동 기록 삭제
-    async remove(id: number) {
+    async remove(userId: number, id: number) {
         return this.prisma.workout.delete({
-            where: { id },
+            where: {
+                id,
+                userId,
+            },
         });
     }
 }
