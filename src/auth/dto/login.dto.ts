@@ -1,11 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
-/**
- * 로그인 DTO
- * Pipe를 통한 검증이 자동으로 수행됩니다.
- */
+// 로그인 DTO
+// Pipe를 통한 검증이 자동으로 수행됩니다.
 export class LoginDto {
+    // 이메일
     @ApiProperty({
         example: 'user@example.com',
         description: '사용자 이메일',
@@ -14,6 +13,8 @@ export class LoginDto {
     @IsNotEmpty({ message: '이메일은 필수 항목입니다.' })
     email: string;
 
+
+    // 비밀번호
     @ApiProperty({
         example: 'password123',
         description: '비밀번호 (최소 6자)',

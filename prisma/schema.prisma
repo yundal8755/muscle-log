@@ -18,7 +18,7 @@ model User {
   email     String   @unique
   password  String
   name      String
-  workouts  Workout[]
+  workout  Workout[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -38,5 +38,5 @@ model Workout {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@map("workouts")
+  @@map("workout")
 }

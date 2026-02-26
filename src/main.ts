@@ -4,16 +4,40 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { setupSwagger } from './setup-swagger';
 import { ExcludePasswordInterceptor } from './common/interceptors/exclude-password.interceptor';
+import { SuccessResponseInterceptor } from './common/interceptors/success-response.interceptor';
+import { CustomExceptionFilter } from './common/filters/custom-exception.filter';
 
 async function bootstrap() {
-  // 1. 앱 생성
+  // 앱 생성
   // AppModule은 애플리케이션의 루트 모듈로, 모든 다른 모듈과 서비스를 포함합니다. 
   // NestFactory.create() 메서드를 사용하여 NestJS 애플리케이션 인스턴스를 생성합니다.
   const app = await NestFactory.create(AppModule);
 
-  // 2. 유효성 검사 설정 (ValidationPipe 전역 설정)
-  // 설명: 모든 요청 데이터를 검사하는 문지기를 세우는 설정
-  // 핵심: transform: true를 통해 문자열 '1'을 숫자 1로 자동 변환하여 DTO의 타입과 일치하도록 함
+  // Middleware 설정 (예: CORS, Helmet 등)
+  app.enableCors(); // CORS 활성화
+
+  // 간단한 로깅 미들웨어 예시 (누가 어떤 주소로 요청했는지 터미널에 찍기)
+  app.use((req, res, next) => {
+    console.log(`[Middleware - 요청 도착] ${req.method} ${req.url}`);
+    res.on('finish', () => {
+      console.log('[Middleware - 응답 보냄] ', res.statusCode);
+    });
+    next();
+  });
+
+  // Guard 설정은 각 컨트롤러나 라우트 핸들러에서 @UseGuards() 데코레이터를 사용하여 적용할 수 있습니다.
+  // ⚠️ 주의: 인증 가드는 보통 전역으로 쓰지 않고 Controller에 직접 붙입니다!
+
+  // Interceptor 설정
+  // SuccessResponseInterceptor: 성공 응답을 Flutter 호환 포맷으로 감싸기
+  // ExcludePasswordInterceptor: password 필드 제거하기
+  app.useGlobalInterceptors(
+    new SuccessResponseInterceptor(), // 먼저 데이터를 감싸고
+    new ExcludePasswordInterceptor(), // 그 다음 password를 제거
+  );
+
+  // Pipe 설정
+  // 유효성 검사와 데이터 변환을 위한 전역 Pipe 설정
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, // DTO에 없는 속성은 거름 (보안상 중요!)
@@ -22,17 +46,14 @@ async function bootstrap() {
     }),
   );
 
-  // 3. Interceptor 전역 설정
-  // 설명: 모든 응답에서 password 필드를 자동으로 제거하는 Interceptor
-  app.useGlobalInterceptors(new ExcludePasswordInterceptor());
+  // Exception Filter 설정
+  app.useGlobalFilters(new CustomExceptionFilter());
 
-  // 4. Swagger 설정
-  // 설명: API 문서를 만들기 위한 설정입니다. 
-  // 제목, 설명 등을 적고 SwaggerModule을 통해 문서 사이트를 생성합니다.
+  // Swagger 설정
   setupSwagger(app);
 
-  // 5. 서버 실행
-  // 설명: 3000번 포트를 열고 서버를 대기 상태로 만듭니다. 이제 외부에서 접속할 수 있습니다.
+  // 서버 실행
+  // 이제 외부에서 접속할 수 있습니다.
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

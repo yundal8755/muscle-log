@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
 import { UpdateWorkoutDto } from './dto/update-workout.dto';
-import { FindWorkoutsDto } from './dto/find-workouts.dto';
+import { FindWorkoutDto } from './dto/find-workouts.dto';
 
 @Injectable()
-export class WorkoutsService {
+export class WorkoutService {
     constructor(private prisma: PrismaService) { }
 
     /// 운동 기록 생성
@@ -20,7 +20,7 @@ export class WorkoutsService {
     }
 
     /// 운동 기록 조회 (전체/검색/필터/최근 기록 통합)
-    async findAll(userId: number, dto: FindWorkoutsDto = {}) {
+    async findAll(userId: number, dto: FindWorkoutDto = {}) {
         const { exerciseName, startDate, endDate, limit } = dto;
 
         return this.prisma.workout.findMany({
@@ -58,7 +58,7 @@ export class WorkoutsService {
 
     /// 운동 통계 조회
     async getStatistics(userId: number) {
-        const totalWorkouts = await this.prisma.workout.count({
+        const totalWorkout = await this.prisma.workout.count({
             where: { userId },
         });
 
@@ -79,7 +79,7 @@ export class WorkoutsService {
         });
 
         return {
-            totalWorkouts,
+            totalWorkout,
             exerciseGroups: exerciseGroups.map(group => ({
                 exerciseName: group.exerciseName,
                 count: group._count.id,

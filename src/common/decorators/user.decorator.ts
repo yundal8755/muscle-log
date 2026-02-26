@@ -8,12 +8,12 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
  * 사용법:
  * @UseGuards(JwtAuthGuard)
  * async someMethod(@User() user: any) {
- *   // user.id, user.email 등 사용 가능
+ *   user.id, user.email 등 사용 가능
  * }
  * 
  * 특정 필드만 추출:
  * async someMethod(@User('id') userId: number) {
- *   // userId만 추출
+ *   userId만 추출
  * }
  */
 export const User = createParamDecorator(

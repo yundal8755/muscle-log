@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "workouts" (
+CREATE TABLE "workout" (
     "id" SERIAL NOT NULL,
     "exerciseName" TEXT NOT NULL,
     "sets" INTEGER NOT NULL,
@@ -10,5 +10,5 @@ CREATE TABLE "workouts" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "workouts_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "workout_pkey" PRIMARY KEY ("id")
 );

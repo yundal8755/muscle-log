@@ -2,7 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger'; // 이거 필수!
 import { IsOptional, IsString, IsDateString, IsInt, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class FindWorkoutsDto {
+export class FindWorkoutDto {
     @ApiPropertyOptional()
     @IsOptional()
     @IsString()
